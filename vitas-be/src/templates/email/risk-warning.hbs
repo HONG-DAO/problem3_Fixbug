@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Alert - Risk Warnings</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background: linear-gradient(135deg, #FF9800, #E65100); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 24px; 
+        }
+        .header p { 
+            margin: 10px 0 0 0; 
+            opacity: 0.9; 
+        }
+        .content { 
+            padding: 20px; 
+        }
+        .alert { 
+            border: 1px solid #e0e0e0; 
+            margin: 15px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            background: #FFF3E0; 
+        }
+        .ticker { 
+            font-weight: bold; 
+            font-size: 20px; 
+            color: #E65100; 
+            margin-bottom: 10px; 
+        }
+        .confidence { 
+            background: #FFE0B2; 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            display: inline-block; 
+            font-weight: bold; 
+            color: #E65100; 
+        }
+        .price { 
+            color: #1976D2; 
+            font-weight: bold; 
+            font-size: 18px; 
+        }
+        .risk-factors { 
+            color: #D84315; 
+            font-weight: bold; 
+        }
+        .footer { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            text-align: center; 
+            font-size: 12px; 
+            color: #666; 
+        }
+        .stats {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stats h3 {
+            margin: 0 0 10px 0;
+            color: #E65100;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Risk Warnings</h1>
+            <p>{{signals.length}} risk alerts detected</p>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <h3>📊 Summary</h3>
+                <p><strong>Total Alerts:</strong> {{signals.length}} | <strong>Generated:</strong> {{generatedAt}}</p>
+            </div>
+            
+            {{#each signals}}
+            <div class="alert">
+                <div class="ticker">{{ticker}}</div>
+                <p><strong>Risk Level:</strong> <span class="confidence">{{confidence}}%</span></p>
+                <p><strong>Current Price:</strong> <span class="price">{{entryPrice}} VND</span></p>
+                <p class="risk-factors"><strong>Risk Factors:</strong> {{reason}}</p>
+                <p><strong>Time:</strong> {{timestamp}}</p>
+            </div>
+            {{/each}}
+        </div>
+        
+        <div class="footer">
+            <p>Generated at: {{generatedAt}}</p>
+            <p>This is an automated risk alert. Please review your positions and consider appropriate risk management actions.</p>
+            <p><strong>VITAS Trading System</strong> - Automated Trading Alert System</p>
+        </div>
+    </div>
+</body>
+</html>

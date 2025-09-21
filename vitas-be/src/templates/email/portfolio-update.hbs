@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Update</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 24px; 
+        }
+        .header p { 
+            margin: 10px 0 0 0; 
+            opacity: 0.9; 
+        }
+        .content { 
+            padding: 20px; 
+        }
+        .metric { 
+            border: 1px solid #e0e0e0; 
+            margin: 15px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            background: #fafafa; 
+        }
+        .value { 
+            font-weight: bold; 
+            font-size: 24px; 
+            color: #7B1FA2; 
+            margin-bottom: 5px; 
+        }
+        .label {
+            color: #666;
+            font-size: 14px;
+        }
+        .positive {
+            color: #4CAF50 !important;
+        }
+        .negative {
+            color: #F44336 !important;
+        }
+        .footer { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            text-align: center; 
+            font-size: 12px; 
+            color: #666; 
+        }
+        .warnings {
+            background: #FFF3E0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .warnings h4 {
+            margin: 0 0 10px 0;
+            color: #E65100;
+        }
+        .warnings ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .warnings li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Portfolio Update</h1>
+            <p>Current portfolio status and metrics</p>
+        </div>
+        
+        <div class="content">
+            {{#if portfolioValue}}
+            <div class="metric">
+                <div class="value">{{portfolioValue}} VND</div>
+                <div class="label">Total Portfolio Value</div>
+            </div>
+            {{/if}}
+            
+            {{#if activePositions}}
+            <div class="metric">
+                <div class="value">{{activePositions}}/{{maxPositions}}</div>
+                <div class="label">Active Positions</div>
+            </div>
+            {{/if}}
+            
+            {{#if dailyPnl}}
+            <div class="metric">
+                <div class="value {{#if (gte dailyPnl 0)}}positive{{else}}negative{{/if}}">{{formatCurrency dailyPnl}}</div>
+                <div class="label">Daily P&L</div>
+            </div>
+            {{/if}}
+            
+            {{#if warnings}}
+            <div class="warnings">
+                <h4>⚠️ Risk Warnings:</h4>
+                <ul>
+                    {{#each warnings}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+        </div>
+        
+        <div class="footer">
+            <p>Generated at: {{generatedAt}}</p>
+            <p>Portfolio allocation based on current trading signals and risk management rules.</p>
+            <p><strong>VITAS Trading System</strong> - Your AI Trading Assistant</p>
+        </div>
+    </div>
+</body>
+</html>

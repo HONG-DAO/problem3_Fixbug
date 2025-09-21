@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VITAS Trading System - Test Email</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background: linear-gradient(135deg, #2E8B57, #1B5E20); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 24px; 
+        }
+        .content { 
+            padding: 20px; 
+        }
+        .success { 
+            background: #E8F5E8; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+            text-align: center; 
+        }
+        .success h3 { 
+            margin: 0 0 10px 0; 
+            color: #2E8B57; 
+        }
+        .config { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+        }
+        .config h4 { 
+            margin: 0 0 10px 0; 
+            color: #1976D2; 
+        }
+        .config-item { 
+            display: flex; 
+            justify-content: space-between; 
+            margin: 5px 0; 
+            padding: 5px 0; 
+            border-bottom: 1px solid #e0e0e0; 
+        }
+        .footer { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            text-align: center; 
+            font-size: 12px; 
+            color: #666; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 VITAS Trading System</h1>
+            <p>Email Configuration Test</p>
+        </div>
+        
+        <div class="content">
+            <div class="success">
+                <h3>✅ Email Configuration Working!</h3>
+                <p>Your email notifications are properly configured and working with @nestjs-modules/mailer.</p>
+            </div>
+            
+            <div class="config">
+                <h4>📊 Configuration Details:</h4>
+                <div class="config-item">
+                    <span>SMTP Host:</span>
+                    <strong>{{smtpHost}}</strong>
+                </div>
+                <div class="config-item">
+                    <span>SMTP Port:</span>
+                    <strong>{{smtpPort}}</strong>
+                </div>
+                <div class="config-item">
+                    <span>SMTP Secure:</span>
+                    <strong>{{smtpSecure}}</strong>
+                </div>
+                <div class="config-item">
+                    <span>From:</span>
+                    <strong>{{from}}</strong>
+                </div>
+                <div class="config-item">
+                    <span>To:</span>
+                    <strong>{{to}}</strong>
+                </div>
+                <div class="config-item">
+                    <span>Generated:</span>
+                    <strong>{{generatedAt}}</strong>
+                </div>
+            </div>
+            
+            <p>You will now receive trading alerts, daily summaries, and risk warnings from the VITAS Trading System.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Generated at: {{generatedAt}}</p>
+            <p>This is a test email from your VITAS Trading System.</p>
+            <p><strong>VITAS Trading System</strong> - Your AI Trading Assistant</p>
+        </div>
+    </div>
+</body>
+</html>

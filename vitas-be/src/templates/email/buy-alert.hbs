@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Alert - Buy Recommendations</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background: linear-gradient(135deg, #4CAF50, #2E7D32); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 24px; 
+        }
+        .header p { 
+            margin: 10px 0 0 0; 
+            opacity: 0.9; 
+        }
+        .content { 
+            padding: 20px; 
+        }
+        .signal { 
+            border: 1px solid #e0e0e0; 
+            margin: 15px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            background: #fafafa; 
+        }
+        .ticker { 
+            font-weight: bold; 
+            font-size: 20px; 
+            color: #2E7D32; 
+            margin-bottom: 10px; 
+        }
+        .confidence { 
+            background: #E8F5E8; 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            display: inline-block; 
+            font-weight: bold; 
+            color: #2E7D32; 
+        }
+        .price { 
+            color: #1976D2; 
+            font-weight: bold; 
+            font-size: 18px; 
+        }
+        .reason { 
+            color: #666; 
+            font-style: italic; 
+            margin-top: 10px; 
+        }
+        .footer { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            text-align: center; 
+            font-size: 12px; 
+            color: #666; 
+        }
+        .stats {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stats h3 {
+            margin: 0 0 10px 0;
+            color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🟢 Buy Recommendations</h1>
+            <p>{{signals.length}} stocks recommended for purchase</p>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <h3>📊 Summary</h3>
+                <p><strong>Total Signals:</strong> {{signals.length}} | <strong>Generated:</strong> {{generatedAt}}</p>
+            </div>
+            
+            {{#each signals}}
+            <div class="signal">
+                <div class="ticker">{{ticker}}</div>
+                <p><strong>Confidence:</strong> <span class="confidence">{{confidence}}%</span></p>
+                <p><strong>Entry Price:</strong> <span class="price">{{entryPrice}} VND</span></p>
+                {{#if stopLoss}}
+                <p><strong>Stop Loss:</strong> <span class="price">{{stopLoss}} VND</span></p>
+                {{/if}}
+                {{#if takeProfit}}
+                <p><strong>Take Profit:</strong> <span class="price">{{takeProfit}} VND</span></p>
+                {{/if}}
+                <p class="reason"><strong>Reason:</strong> {{reason}}</p>
+                <p><strong>Time:</strong> {{timestamp}}</p>
+            </div>
+            {{/each}}
+        </div>
+        
+        <div class="footer">
+            <p>Generated at: {{generatedAt}}</p>
+            <p>This is an automated trading alert. Please conduct your own analysis before making investment decisions.</p>
+            <p><strong>VITAS Trading System</strong> - Automated Trading Alert System</p>
+        </div>
+    </div>
+</body>
+</html>

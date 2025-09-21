@@ -94,7 +94,7 @@ class ApiService {
 
   async getHistoricalData(
     ticker: string, 
-    timeframe: string = '1d', 
+    timeframe: string = '1m', 
     limit: number = 100,
     fromDate?: string,
     toDate?: string
@@ -107,7 +107,7 @@ class ApiService {
     return response.data;
   }
 
-  async getLatestData(ticker: string, timeframe: string = '1d'): Promise<BaseResponse<MarketDataPoint>> {
+  async getLatestData(ticker: string, timeframe: string = '1m'): Promise<BaseResponse<MarketDataPoint>> {
     const response = await this.api.get(`/market-data/query/latest/${ticker}`, { 
       params: { timeframe } 
     });
@@ -116,7 +116,7 @@ class ApiService {
 
   async getOHLCVData(
     ticker: string, 
-    timeframe: string = '1d', 
+    timeframe: string = '1m', 
     limit: number = 100
   ): Promise<BaseResponse<OHLCVData[]>> {
     const response = await this.api.get(`/market-data/query/ohlcv/${ticker}`, {
@@ -127,7 +127,7 @@ class ApiService {
 
   async getMarketStatistics(
     hours: number = 24, 
-    timeframe: string = '1d'
+    timeframe: string = '1m'
   ): Promise<BaseResponse<Record<string, unknown>>> {
     const response = await this.api.get('/market-data/query/statistics', {
       params: { hours, timeframe }
@@ -184,18 +184,24 @@ class ApiService {
 
   async getChartData(
     ticker: string,
-    timeframe: string = '1d',
-    limit: number = 100
+    timeframe: string = '1m',
+    limit: number = 100,
+    fromDate?: string,
+    toDate?: string
   ): Promise<BaseResponse<ChartDataResponse>> {
+    const params: any = { timeframe, limit };
+    if (fromDate) params.fromDate = fromDate;
+    if (toDate) params.toDate = toDate;
+    
     const response = await this.api.get(`/dashboard/chart-data/${ticker}`, {
-      params: { timeframe, limit }
+      params
     });
     return response.data;
   }
 
   async getDashboardMarketData(
     tickers: string,
-    timeframe: string = '1d'
+    timeframe: string = '1m'
   ): Promise<BaseResponse<Record<string, unknown>>> {
     const response = await this.api.get('/dashboard/market-data', {
       params: { tickers, timeframe }
@@ -313,7 +319,7 @@ class ApiService {
   // Data Fetch APIs
   async fetchHistoricalData(
     tickers: string[],
-    timeframe: string = '1d',
+    timeframe: string = '1m',
     periods: number = 100,
     fromDate?: string,
     toDate?: string
@@ -328,7 +334,7 @@ class ApiService {
     return response.data;
   }
 
-  async fetchLatestData(tickers: string[], timeframe: string = '1d'): Promise<BaseResponse<Record<string, unknown>>> {
+  async fetchLatestData(tickers: string[], timeframe: string = '1m'): Promise<BaseResponse<Record<string, unknown>>> {
     const response = await this.api.post('/market-data/fetch/latest', {
       tickers,
       timeframe
@@ -336,7 +342,7 @@ class ApiService {
     return response.data;
   }
 
-  async fetchTradingDaysData(tickers: string[], timeframe: string = '1d'): Promise<BaseResponse<Record<string, unknown>>> {
+  async fetchTradingDaysData(tickers: string[], timeframe: string = '1m'): Promise<BaseResponse<Record<string, unknown>>> {
     const response = await this.api.post('/market-data/fetch/trading-days', {
       tickers,
       timeframe
@@ -386,7 +392,7 @@ class ApiService {
   /**
    * Fetch latest candles for real-time updates
    */
-  async fetchLatestCandles(symbol: string, interval: '1h' | '1d'): Promise<OHLCVData[]> {
+  async fetchLatestCandles(symbol: string, interval: '1m'): Promise<OHLCVData[]> {
     try {
       const response = await this.api.get(`/market-data/latest/${symbol}`, {
         params: { timeframe: interval }

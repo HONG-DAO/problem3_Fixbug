@@ -3,6 +3,13 @@ import { Chart as ReactChart } from 'react-chartjs-2';
 import '../../chart/register';
 import type { OHLCVData } from '../../types/api';
 import { formatNumber, type Interval } from '../../utils/marketHours';
+import { 
+  ensureMs,
+  isValidUTCTimestamp,
+  formatTimestampForDebug
+} from '../../utils/chartHelpers';
+import { resolveWeeklyWindow } from '../../utils/weeklyWindow';
+import { getSourceTimeframe, isSupportedView, type View } from '../../utils/intervals';
 
 interface ApiMountainChartProps {
   data: OHLCVData[];
@@ -23,45 +30,85 @@ export function ApiMountainChart({
   const [priceChangePercent, setPriceChangePercent] = useState<number>(0);
   const chartRef = useRef<any>(null);
 
-  // Calculate current data (hovered or latest)
-  const currentData = hoveredData || (data.length > 0 ? data[data.length - 1] : null);
+  // ===== Xác định nguồn dữ liệu dựa trên view (ví dụ)
+  const view = timeframe as View;
+  const sourceInterval = isSupportedView(view) ? getSourceTimeframe(view) : '1m'; // ví dụ: fallback to 1m
 
-  // Cập nhật giá và thay đổi từ API data
+  // ===== Resolve weekly window trước khi chuẩn hoá dữ liệu (ví dụ)
+  const window = useMemo(() => {
+    // ví dụ: BE trả timestamp UTC+0, ensureMs đảm bảo convert đúng
+    const timePoints = data?.map(d => ({ time: ensureMs(d.time) })) ?? [];
+    return resolveWeeklyWindow(timePoints, Date.now());
+  }, [data]);
+
+  // ===== Chuẩn hoá & lọc dữ liệu (chỉ tuần hiển thị) (ví dụ)
+  const displayData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    
+    return data
+      .filter(n => isValidUTCTimestamp(n.time)) // ví dụ: chỉ lấy timestamp UTC+0 hợp lệ
+      .map(n => ({ 
+        time: ensureMs(n.time), // ví dụ: convert timestamp UTC+0 từ BE
+        open: n.open, 
+        high: n.high, 
+        low: n.low, 
+        close: n.close, 
+        volume: n.volume 
+      }))
+      .filter(p => p.time >= window.startMs && p.time <= window.endMs)
+      .sort((a, b) => a.time - b.time); // ví dụ: đảm bảo tăng dần trái→phải
+  }, [data, window]);
+
+  // Debug logging chỉ cho view 1D (ví dụ)
+  if (view === '1d') {
+    const validTimestamps = data?.filter(n => isValidUTCTimestamp(n.time)).length ?? 0;
+    console.log(`[chart:1d] ApiMountainChart resolved`, {
+      apiTF: sourceInterval, // phải là '15m'
+      ww: window,
+      rawLen: data?.length ?? 0,
+      validTimestamps, // ví dụ: số timestamp UTC+0 hợp lệ
+      afterLen: displayData.length,
+      first: displayData[0]?.time, // ví dụ: UTC+0 milliseconds
+      last: displayData.at(-1)?.time, // ví dụ: UTC+0 milliseconds
+      firstFormatted: displayData[0] ? formatTimestampForDebug(displayData[0].time) : null, // ví dụ: UTC+0 formatted
+      lastFormatted: displayData.at(-1) ? formatTimestampForDebug(displayData.at(-1)!.time) : null, // ví dụ: UTC+0 formatted
+    }); // ví dụ
+  }
+
+  // Calculate current data (hovered or latest)
+  const currentData = hoveredData || (displayData.length > 0 ? displayData[displayData.length - 1] : null);
+
+  // Cập nhật giá và thay đổi từ display data (ví dụ)
   useEffect(() => {
-    if (data && data.length > 0) {
-      const latest = data[data.length - 1];
-      const previous = data.length > 1 ? data[data.length - 2] : latest;
+    if (displayData && displayData.length > 0) {
+      const latest = displayData[displayData.length - 1];
+      const previous = displayData.length > 1 ? displayData[displayData.length - 2] : latest;
       
       setPriceChange(latest.close - previous.close);
       setPriceChangePercent(((latest.close - previous.close) / previous.close) * 100);
     }
-  }, [data]);
+  }, [displayData]);
 
-  // Price chart data - chỉ sử dụng API data
+  // Không còn logic volume phiên - chỉ dùng 1m (ví dụ)
+
+  // ===== Volume chỉ từ display data (ví dụ) - removed unused volumeSeries
+
+  // ===== Chuẩn hoá điểm vẽ (line chart kiểu "mountain") (ví dụ)
+  const linePoints = useMemo(() => {
+    return displayData.map(p => ({ x: p.time as number, y: p.close })); // ví dụ: mỗi 15m/1m là một "đỉnh"
+  }, [displayData]);
+
+  // Price chart data - sử dụng line points (ví dụ)
   const priceChartData = useMemo(() => {
-    if (!data || data.length === 0) {
+    if (!displayData || displayData.length === 0) {
       return {
         datasets: []
       };
     }
 
-    // Debug logging for time data
-    console.log('Chart time data sample:', data.slice(0, 3).map(d => ({
-      originalTime: d.time,
-      convertedDate: new Date(d.time * 1000),
-      formatted: new Date(d.time * 1000).toLocaleString('vi-VN', { 
-        timeZone: 'Asia/Ho_Chi_Minh',
-        hour12: false,
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    })));
-
-    const priceData = data.map(c => ({ 
-      x: new Date(c.time * 1000), // Convert from seconds to milliseconds
-      y: c.close 
+    const priceData = linePoints.map(point => ({ 
+      x: new Date(point.x), // ví dụ: time đã là milliseconds
+      y: point.y 
     }));
 
     return {
@@ -129,34 +176,14 @@ export function ApiMountainChart({
         displayColors: false,
         callbacks: {
           title: (items: any[]) => {
-            if (!items?.length) return '';
-            const d: Date = items[0].parsed.x ? new Date(items[0].parsed.x) : items[0].raw?.x;
-            // Ensure we're working with a valid date
-            if (isNaN(d.getTime())) return '';
-            
-            return d.toLocaleString('vi-VN', { 
-              timeZone: 'Asia/Ho_Chi_Minh', // Use Vietnam timezone
-              hour12: false,
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            });
+            const t = items[0]?.parsed?.x;
+            return t
+              ? new Date(t).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
+              : '';
           },
           label: (ctx: any) => {
-            const raw = ctx.raw;
-            const dataIndex = ctx.dataIndex;
-            if (dataIndex < data.length) {
-              const pointData = data[dataIndex];
-              return [
-                `Close: ${pointData.close.toLocaleString('vi-VN')}`,
-                `Open: ${pointData.open.toLocaleString('vi-VN')}`,
-                `High: ${pointData.high.toLocaleString('vi-VN')}`,
-                `Low: ${pointData.low.toLocaleString('vi-VN')}`,
-                `Volume: ${Intl.NumberFormat('vi-VN').format(pointData.volume)}`
-              ];
-            }
-            return `Price: ${raw?.y?.toLocaleString('vi-VN')}`;
+            const p = displayData[ctx.dataIndex];
+            return p ? `Close: ${p.close} | O:${p.open} H:${p.high} L:${p.low} V:${p.volume}` : '';
           }
         }
       }
@@ -165,11 +192,18 @@ export function ApiMountainChart({
       x: {
         type: 'timeseries' as const,
         display: false, // Hide x-axis for price chart
+        min: window.startMs,            // ví dụ - ép range trục X theo tuần
+        max: window.endMs,              // ví dụ - ép range trục X theo tuần
+        time: {
+          tooltipFormat: 'dd/MM/yyyy HH:mm',
+          // ví dụ: nếu có adapter dayjs/date-fns, set timezone VN ở tooltip callback
+        },
         grid: {
           display: false
         }
       },
-      y: {
+      y: { 
+        beginAtZero: false,
         type: 'linear' as const,
         position: 'right' as const,
         grid: {
@@ -197,18 +231,27 @@ export function ApiMountainChart({
       if (elements.length > 0) {
         const element = elements[0];
         const dataIndex = element.index;
-        if (dataIndex < data.length) {
-          setHoveredData(data[dataIndex]);
+        if (dataIndex < displayData.length) {
+          // Convert Bar1m back to OHLCVData format for hoveredData (ví dụ)
+          const bar = displayData[dataIndex];
+          setHoveredData({
+            time: bar.time as number,
+            open: bar.open,
+            high: bar.high,
+            low: bar.low,
+            close: bar.close,
+            volume: bar.volume
+          });
         }
       } else {
         setHoveredData(null);
       }
     }
-  }), [data]);
+  }), [displayData, currentData, window, sourceInterval]);
 
 
-  // Show no data message if no API data
-  if (!data || data.length === 0) {
+  // Show no data message if no display data (ví dụ)
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="w-full">
         <div className="h-[420px] flex items-center justify-center text-gray-500">
@@ -238,7 +281,7 @@ export function ApiMountainChart({
               </span>
               {hoveredData ? (
                 <span className="text-lg font-medium text-blue-400">
-                  Hover: {new Date(hoveredData.time * 1000).toLocaleString('vi-VN', { 
+                  Hover: {new Date(hoveredData.time).toLocaleString('vi-VN', { 
                     timeZone: 'Asia/Ho_Chi_Minh',
                     hour12: false,
                     month: 'short',
@@ -261,7 +304,7 @@ export function ApiMountainChart({
             {marketStatus === 'open' ? 'Thị trường đang mở cửa' : 'Thị trường đóng cửa'}
           </div>
           <div className="text-sm text-gray-300">
-            {currentData && `At close: ${new Date(currentData.time * 1000).toLocaleString('vi-VN', { 
+            {currentData && `At close: ${new Date(currentData.time).toLocaleString('vi-VN', { 
               timeZone: 'Asia/Ho_Chi_Minh',
               hour12: false,
               month: 'short',
@@ -287,6 +330,18 @@ export function ApiMountainChart({
           {formatNumber(currentData?.close || 0)}
         </div>
       </div>
+
+      {/* Empty State UI khi không có dữ liệu trong window (ví dụ) */}
+      {displayData.length === 0 && (
+        <div className="mt-2 text-center">
+          <p className="text-xs text-muted-foreground">
+            {window.source === 'anchored-to-latest-data' 
+              ? 'Không có dữ liệu trong tuần hiện tại. Đang neo về tuần gần nhất có dữ liệu.' // ví dụ
+              : 'Không có dữ liệu trong tuần hiện tại.' // ví dụ
+            }
+          </p>
+        </div>
+      )}
 
     </div>
   );

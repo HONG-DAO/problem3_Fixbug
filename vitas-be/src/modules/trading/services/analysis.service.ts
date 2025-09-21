@@ -110,4 +110,60 @@ export class AnalysisService {
       throw error;
     }
   }
+
+  /**
+   * Analyze single candle for backtest purposes
+   * This method is designed to work with backtest service
+   */
+  async analyzeCandle(ticker: string, candle: any, timeframe: string = '15m'): Promise<any[]> {
+    try {
+      // Convert candle to IMarketDataPoint format
+      const marketDataPoint = {
+        ticker: candle.ticker,
+        timestamp: new Date(candle.timestamp),
+        timeframe: candle.timeframe || timeframe,
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+        volume: candle.volume,
+        change: candle.change,
+        changePercent: candle.changePercent,
+        totalMatchValue: candle.totalMatchValue,
+        foreignBuyVolume: candle.foreignBuyVolume,
+        foreignSellVolume: candle.foreignSellVolume,
+        matchVolume: candle.matchVolume,
+      };
+
+      // For backtest, we need to get historical data to calculate indicators
+      // Get recent data (last 50 candles) to calculate indicators properly
+      const historicalData = await this.marketDataService.getHistoricalData(
+        ticker,
+        timeframe,
+        50
+      );
+
+      if (!historicalData || historicalData.length === 0) {
+        this.logger.warn(`No historical data found for ${ticker} to calculate indicators`);
+        return [];
+      }
+
+      // Add the current candle to the historical data
+      const dataWithCurrentCandle = [...historicalData, marketDataPoint];
+      
+      // Calculate technical indicators for the entire dataset
+      const dataWithIndicators = this.indicatorsService.calculateAllIndicators(dataWithCurrentCandle);
+      
+      // Get the last candle with indicators (our current candle)
+      const currentCandleWithIndicators = dataWithIndicators[dataWithIndicators.length - 1];
+      
+      // Generate signals using the strategy
+      const signals = await this.strategy.analyzeTicker(ticker, [currentCandleWithIndicators]);
+      
+      return signals;
+    } catch (error) {
+      this.logger.error(`Failed to analyze candle for ${ticker}:`, error);
+      return [];
+    }
+  }
 }

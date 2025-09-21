@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../hooks/useApi';
 import { apiService } from '../services/api';
-import { ApiMountainChart } from '../components/Charts/ApiMountainChart'; // Changed to use same chart engine as Dashboard
+import { ApiMountainChart } from '../components/Charts/ApiMountainChart';
+// Xóa import cũ không còn sử dụng // ví dụ // Changed to use same chart engine as Dashboard
 import type { OHLCVData } from '../types/api';
 import { isMarketOpen, formatGmt7, type Interval } from '../utils/marketHours';
+import { getSourceTimeframe, isSupportedView, type View } from '../utils/intervals';
 import { 
   ChartBarIcon, 
   ClockIcon, 
@@ -20,10 +22,13 @@ export function Charts() {
   const [marketStatus, setMarketStatus] = useState<'open' | 'closed'>('open');
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  // Fetch chart data
+  // Fetch chart data với interval đúng (ví dụ)
+  const view = selectedTimeframe as View;
+  const sourceInterval = isSupportedView(view) ? getSourceTimeframe(view) : '1m';
+  const limit = sourceInterval === '15m' ? 200 : 2000; // ví dụ: 15m ~ 28*5≈140; 1m ~ 7*60*5=2100
   const { data: chartResponse, loading: chartLoading } = useApi(
-    () => apiService.getChartData(selectedTicker, selectedTimeframe, chartPeriods),
-    [selectedTicker, selectedTimeframe, chartPeriods]
+    () => apiService.getChartData(selectedTicker, sourceInterval, limit), // ví dụ: limit theo interval
+    [selectedTicker, sourceInterval]
   );
 
   // Fetch all tickers

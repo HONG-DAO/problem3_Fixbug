@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../src/app.module.js';
 import { Logger } from '@nestjs/common';
-import { DataFetchService } from '../src/modules/market-data/services/data-fetch.service';
-import { MarketDataService } from '../src/infrastructure/database/market-data.service';
-import { FiinQuantDataService } from '../src/infrastructure/external-services/fiinquant-data.service';
+import { DataFetchService } from '../src/modules/market-data/services/data-fetch.service.js';
+import { MarketDataService } from '../src/infrastructure/database/market-data.service.js';
+import { FiinQuantDataService } from '../src/infrastructure/external-services/fiinquant-data.service.js';
 
 async function run() {
   const logger = new Logger('FetchRangeScript');

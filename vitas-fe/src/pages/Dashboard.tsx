@@ -3,7 +3,9 @@ import { useApi } from '../hooks/useApi';
 import { apiService } from '../services/api';
 import { MarketOverview } from '../components/Dashboard/MarketOverview';
 import { ApiMountainChart } from '../components/Charts/ApiMountainChart';
+// Xóa import cũ không còn sử dụng // ví dụ
 import { isMarketOpen } from '../utils/marketHours';
+import { getSourceTimeframe, isSupportedView, type View } from '../utils/intervals';
 import { 
   ChartBarIcon, 
   ClockIcon, 
@@ -29,10 +31,13 @@ export function Dashboard() {
     [refreshKey]
   );
 
-  // Fetch chart data
+  // Fetch chart data với interval đúng (ví dụ)
+  const view = selectedTimeframe as View;
+  const sourceInterval = isSupportedView(view) ? getSourceTimeframe(view) : '1m';
+  const limit = sourceInterval === '15m' ? 200 : 2000; // ví dụ: 15m ~ 28*5≈140; 1m ~ 7*60*5=2100
   const { data: chartResponse, loading: chartLoading } = useApi(
-    () => apiService.getChartData(selectedTicker, selectedTimeframe, 100),
-    [selectedTicker, selectedTimeframe]
+    () => apiService.getChartData(selectedTicker, sourceInterval, limit), // ví dụ: limit theo interval
+    [selectedTicker, sourceInterval]
   );
 
   // Fetch all tickers

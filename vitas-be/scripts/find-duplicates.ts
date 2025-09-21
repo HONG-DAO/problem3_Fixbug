@@ -1,9 +1,9 @@
 #!/usr/bin/env ts-node
 
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
-import { MarketDataService } from '../src/infrastructure/database/market-data.service';
-import { getCollectionName, Timeframe } from '../src/common/constants/timeframe.constants';
+import { AppModule } from '../src/app.module.js';
+import { MarketDataService } from '../src/infrastructure/database/market-data.service.js';
+import { getCollectionName, Timeframe } from '../src/common/constants/timeframe.constants.js';
 
 interface DuplicateInfo {
   ticker: string;

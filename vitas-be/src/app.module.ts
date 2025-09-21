@@ -16,6 +16,7 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { MarketAnalysisModule } from './modules/market-analysis/market-analysis.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { BacktestModule } from './modules/backtest/backtest.module';
 
 
 @Module({
@@ -46,6 +47,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     MarketAnalysisModule,
     DashboardModule,
     NotificationsModule,
+    BacktestModule,
   ],
 })
 export class AppModule {}

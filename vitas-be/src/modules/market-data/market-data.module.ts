@@ -19,10 +19,12 @@ import { TechnicalIndicatorsService } from '../../common/indicators/technical-in
 // Module Services
 import { DataFetchService } from './services/data-fetch.service';
 import { DataQueryService } from './services/data-query.service';
+import { RefetchMissingOpensService } from './services/refetch-missing-opens.service';
 
 // Controllers
 import { DataFetchController } from './controllers/data-fetch.controller';
 import { DataQueryController } from './controllers/data-query.controller';
+import { RefetchMissingOpensController } from './controllers/refetch-missing-opens.controller';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { DataQueryController } from './controllers/data-query.controller';
   controllers: [
     DataFetchController,
     DataQueryController,
+    RefetchMissingOpensController,
   ],
   providers: [
     // Infrastructure services
@@ -50,10 +53,12 @@ import { DataQueryController } from './controllers/data-query.controller';
     // Module services
     DataFetchService,
     DataQueryService,
+    RefetchMissingOpensService,
   ],
   exports: [
     DataFetchService,
     DataQueryService,
+    RefetchMissingOpensService,
     MarketDataService,
     FiinQuantDataService,
     TechnicalIndicatorsService,

@@ -1,28 +1,23 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MailerModule } from '@nestjs-modules/mailer';
-
-// Services
-import { TelegramService } from './services/telegram.service';
-import { EmailService } from './services/email.service';
-
-// Controllers
-import { AlertsController } from './controllers/alerts.controller';
-
-// Dependencies
-import { MarketDataService } from '../../infrastructure/database/market-data.service';
-import { TradingSignalService } from '../../infrastructure/database/trading-signal.service';
-import { AnalysisService } from '../trading/services/analysis.service';
-import { RSIPSAREngulfingStrategy } from '../../common/strategies/rsi-psar-engulfing.strategy';
-import { TechnicalIndicatorsService } from '../../common/indicators/technical-indicators.service';
-import { FiinQuantDataService } from '../../infrastructure/external-services/fiinquant-data.service';
 
 // Schemas
 import { TradingSignal, TradingSignalSchema } from '../../schemas/trading-signal.schema';
 
-// Config
-import mailerConfig from '../../common/config/mailer.config';
+// Services
+import { BacktestService } from './backtest.service';
+import { BacktestController } from './backtest.controller';
+
+// Dependencies
+import { MarketDataService } from '../../infrastructure/database/market-data.service';
+import { AnalysisService } from '../trading/services/analysis.service';
+import { TradingSignalService } from '../../infrastructure/database/trading-signal.service';
+import { TelegramService } from '../alerts/services/telegram.service';
+import { EmailService } from '../alerts/services/email.service';
+import { RSIPSAREngulfingStrategy } from '../../common/strategies/rsi-psar-engulfing.strategy';
+import { TechnicalIndicatorsService } from '../../common/indicators/technical-indicators.service';
+import { FiinQuantDataService } from '../../infrastructure/external-services/fiinquant-data.service';
 
 @Module({
   imports: [
@@ -30,25 +25,19 @@ import mailerConfig from '../../common/config/mailer.config';
     MongooseModule.forFeature([
       { name: TradingSignal.name, schema: TradingSignalSchema, collection: 'trading-signal' },
     ]),
-    MailerModule.forRootAsync({
-      useFactory: () => mailerConfig(),
-      inject: [],
-    }),
   ],
-  controllers: [AlertsController],
+  controllers: [BacktestController],
   providers: [
+    BacktestService,
+    MarketDataService,
+    AnalysisService,
+    TradingSignalService,
     TelegramService,
     EmailService,
-    MarketDataService,
-    TradingSignalService,
-    AnalysisService,
     RSIPSAREngulfingStrategy,
     TechnicalIndicatorsService,
     FiinQuantDataService,
   ],
-  exports: [
-    TelegramService,
-    EmailService,
-  ],
+  exports: [BacktestService],
 })
-export class AlertsModule {}
+export class BacktestModule {}

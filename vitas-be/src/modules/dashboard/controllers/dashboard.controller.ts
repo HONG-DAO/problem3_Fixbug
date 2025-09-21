@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Body, Param, Query, Logger } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiProperty } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiProperty, ApiBody } from '@nestjs/swagger';
 import { IsString, IsArray, IsOptional, IsEnum } from 'class-validator';
 import { MarketAnalysisService, MarketOverview } from '../../market-analysis/services/market-analysis.service';
 import { UserWatchlistService } from '../../market-analysis/services/user-watchlist.service';
 import { TradingSignalService } from '../../../infrastructure/database/trading-signal.service';
 import { MarketDataService } from '../../../infrastructure/database/market-data.service';
 import { BaseResponseDto } from '../../../common/dto/base.dto';
+import { WatchListDto } from '../dto/watch-list.dto';
 
 export class AddToWatchlistDto {
   @ApiProperty({ 
@@ -278,6 +279,11 @@ export class DashboardController {
   })
   async addToWatchlist(@Body() dto: AddToWatchlistDto) {
     try {
+      // Validate input
+      if (!dto || !dto.ticker) {
+        return BaseResponseDto.error('Ticker is required');
+      }
+
       const watchlistItem = await this.userWatchlistService.addToWatchlist(
         'default', // Single user system
         dto.ticker,
@@ -300,6 +306,7 @@ export class DashboardController {
     summary: 'Remove ticker from watchlist',
     description: 'Remove a ticker from user watchlist'
   })
+  @ApiBody({ type: WatchListDto })
   @ApiResponse({ 
     status: 200, 
     description: 'Ticker removed from watchlist successfully',
@@ -318,8 +325,13 @@ export class DashboardController {
       }
     }
   })
-  async removeFromWatchlist(@Body() dto: { ticker: string }) {
+  async removeFromWatchlist(@Body() dto: WatchListDto) {
     try {
+      // Validate input
+      if (!dto || !dto.ticker) {
+        return BaseResponseDto.error('Ticker is required');
+      }
+
       const success = await this.userWatchlistService.removeFromWatchlist('default', dto.ticker);
       
       return BaseResponseDto.success(
@@ -432,6 +444,11 @@ export class DashboardController {
   })
   async updatePreferences(@Body() dto: UpdatePreferencesDto & { ticker: string }) {
     try {
+      // Validate input
+      if (!dto || !dto.ticker) {
+        return BaseResponseDto.error('Ticker is required');
+      }
+
       const success = await this.userWatchlistService.updatePreferences(
         'default',
         dto.ticker,

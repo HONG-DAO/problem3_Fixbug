@@ -4,7 +4,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log'], // Không 'debug' để tránh spam
+  });
   
   // Enable CORS
   app.enableCors({
@@ -72,9 +74,8 @@ async function bootstrap() {
   const port = process.env.PORT || 3333;
   await app.listen(port);
   
+  // Chỉ hiển thị thông tin cần thiết
   console.log(`🚀 VITAS Trading System API is running on: http://localhost:${port}`);
-  console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
-  console.log(`🔍 Health Check: http://localhost:${port}/health`);
 }
 
 bootstrap();

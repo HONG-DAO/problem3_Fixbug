@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
-import { NotificationService } from '../src/modules/notifications/services/notification.service';
-import { UserWatchlistService } from '../src/modules/market-analysis/services/user-watchlist.service';
+import { AppModule } from '../src/app.module.js';
+import { NotificationService } from '../src/modules/notifications/services/notification.service.js';
+import { UserWatchlistService } from '../src/modules/market-analysis/services/user-watchlist.service.js';
 
 async function testMarketAnalysis() {
   console.log('🚀 Starting market analysis test...');

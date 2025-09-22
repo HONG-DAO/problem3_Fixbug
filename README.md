@@ -12,6 +12,10 @@ VITAS Trading System là một giải pháp toàn diện cho giao dịch chứng
 - **Database**: MongoDB để lưu trữ dữ liệu và Redis cho caching
 - **Notifications**: Telegram và Email alerts
 
+## 🌐 Demo
+
+**Frontend Dashboard**: [https://aienthusiasm.vn](https://aienthusiasm.vn)
+
 ## 🏗️ Kiến trúc hệ thống
 
 ```
